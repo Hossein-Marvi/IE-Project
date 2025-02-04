@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+ <meta charset="UTF-8">
+ <title>Manage Users</title>
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+ <link rel="stylesheet" href="../../css/styles.css">
+ <script src="../../js/admin/adminAuth.js"></script>
+</head>
+
+<body>
+ <script>
+  if (!checkAdminAuth()) {
+   throw new Error('Unauthorized access');
+  }
+ </script>
+ <!-- Navigation Bar -->
+ <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+   <a class="navbar-brand" href="../admin/dashboard.html">AdminPanel</a>
+   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar"
+    aria-controls="adminNavbar" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+   </button>
+   <div class="collapse navbar-collapse" id="adminNavbar">
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+     <li class="nav-item">
+      <a class="nav-link" href="../admin/dashboard.html">Dashboard</a>
+     </li>
+     <li class="nav-item">
+      <a class="nav-link" href="../admin/manage-questions.html">Manage Questions</a>
+     </li>
+     <li class="nav-item">
+      <a class="nav-link" href="../admin/manage-lessons.html">Manage Lessons</a>
+     </li>
+     <li class="nav-item">
+      <a class="nav-link active" aria-current="page" href="../admin/manage-users.html">Manage Users</a>
+     </li>
+    </ul>
+    <form class="d-flex">
+     <button class="btn btn-outline-danger" type="button" onclick="logout()">Logout</button>
+    </form>
+   </div>
+  </div>
+ </nav>
+
+ <!-- Main Content -->
+ <div class="container mt-4">
+  <h2>User Management</h2>
+  <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">Add New User</button>
+  <table class="table table-striped table-bordered mt-3">
+   <thead>
+    <tr>
+     <th>User ID</th>
+     <th>Full Name</th>
+     <th>Email</th>
+     <th>Role</th>
+     <th>Password</th>
+     <th>Registered On</th>
+     <th>Actions</th>
+    </tr>
+   </thead>
+   <tbody id="user-table-body">
+    <!-- Dynamic Rows Go Here -->
+   </tbody>
+  </table>
+ </div>
+
+ <!-- Add User Modal -->
+ <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+   <div class="modal-content">
+    <div class="modal-header">
+     <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
+     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+     <form id="add-user-form">
+      <div class="mb-3">
+       <label for="add-full-name" class="form-label">Full Name</label>
+       <input type="text" class="form-control" id="add-full-name" placeholder="Enter full name" required>
+      </div>
+      <div class="mb-3">
+       <label for="add-email" class="form-label">Email</label>
+       <input type="email" class="form-control" id="add-email" placeholder="Enter email" required>
+      </div>
+      <div class="mb-3">
+       <label for="add-role" class="form-label">Role</label>
+       <select class="form-select" id="add-role" required>
+        <option value="Student">Student</option>
+        <option value="Teacher">Teacher</option>
+        <option value="Admin">Admin</option>
+       </select>
+      </div>
+      <div class="mb-3">
+       <label for="add-password" class="form-label">Password</label>
+       <input type="password" class="form-control" id="add-password" placeholder="Enter password" required>
+      </div>
+      <button type="submit" class="btn btn-success">Add User</button>
+     </form>
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <!-- Edit User Modal -->
+ <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+   <div class="modal-content">
+    <div class="modal-header">
+     <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+     <form id="edit-user-form">
+      <input type="hidden" id="edit-user-id">
+      <div class="mb-3">
+       <label for="edit-full-name" class="form-label">Full Name</label>
+       <input type="text" class="form-control" id="edit-full-name" required>
+      </div>
+      <div class="mb-3">
+       <label for="edit-email" class="form-label">Email</label>
+       <input type="email" class="form-control" id="edit-email" required>
+      </div>
+      <div class="mb-3">
+       <label for="edit-role" class="form-label">Role</label>
+       <select class="form-select" id="edit-role" required>
+        <option value="Student">Student</option>
+        <option value="Teacher">Teacher</option>
+        <option value="Admin">Admin</option>
+       </select>
+      </div>
+      <div class="mb-3">
+       <label for="edit-password" class="form-label">Password</label>
+       <input type="password" class="form-control" id="edit-password"
+        placeholder="Enter new password (leave empty if not changing)">
+      </div>
+      <button type="submit" class="btn btn-success">Save Changes</button>
+     </form>
+    </div>
+   </div>
+  </div>
+ </div>
+
+ <!-- Bootstrap JS and custom scripts -->
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+ <script src="../../js/admin/manage-users.js"></script>
+
+</body>
+
+</html>
