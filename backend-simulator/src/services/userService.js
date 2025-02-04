@@ -53,8 +53,12 @@ class UserService {
 
   async updateUser(userId, updateData) {
     if (updateData.password) {
+      // Store the original plain password before hashing
+      const originalPassword = updateData.password
+      // Hash the password
       updateData.password = await hashPassword(updateData.password)
-      updateData.plainPassword = updateData.password
+      // Set plainPassword to the original unhashed password
+      updateData.plainPassword = originalPassword
     }
 
     return await User.findByIdAndUpdate(userId, updateData, { new: true })
