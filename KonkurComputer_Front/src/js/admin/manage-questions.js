@@ -1,3 +1,6 @@
+// Global store for questions data
+let questionsStore = new Map()
+
 // Helper function for authenticated fetch requests
 function authenticatedFetch(url, options = {}) {
   const token = localStorage.getItem('token')
@@ -34,18 +37,22 @@ function fetchLessons() {
     .then((response) => response.json())
     .then((data) => {
       const lessons = Array.isArray(data) ? data : data.lessons || []
-
       const lessonSelect = document.getElementById('lesson')
       const editLessonSelect = document.getElementById('edit-lesson')
 
+      // Clear existing options
       lessonSelect.innerHTML = ''
       editLessonSelect.innerHTML = ''
 
+      // Add default options
       const defaultOption = document.createElement('option')
       defaultOption.value = ''
       defaultOption.textContent = 'Select lesson'
+      defaultOption.selected = true
+      defaultOption.disabled = true
+
       lessonSelect.appendChild(defaultOption.cloneNode(true))
-      editLessonSelect.appendChild(defaultOption)
+      editLessonSelect.appendChild(defaultOption.cloneNode(true))
 
       lessons.forEach((lesson) => {
         const option = document.createElement('option')
@@ -53,9 +60,10 @@ function fetchLessons() {
         option.textContent = lesson.lessonName
 
         lessonSelect.appendChild(option.cloneNode(true))
-        editLessonSelect.appendChild(option)
+        editLessonSelect.appendChild(option.cloneNode(true))
       })
 
+      // Add change event listeners
       lessonSelect.addEventListener('change', function () {
         fetchChaptersForLesson(this.value, 'chapter')
       })
@@ -69,29 +77,48 @@ function fetchLessons() {
 
 // Fetch chapters for a specific lesson
 function fetchChaptersForLesson(lessonId, chapterSelectId) {
-  if (!lessonId) return
+  if (!lessonId) {
+    console.log('No lesson ID provided')
+    return
+  }
 
   authenticatedFetch(`http://localhost:5001/api/lessons/${lessonId}`)
-    .then((response) => response.json())
-    .then((lesson) => {
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
+      return response.json()
+    })
+    .then((data) => {
+      const lesson = data.lesson || data
       const chapterSelect = document.getElementById(chapterSelectId)
       chapterSelect.innerHTML = ''
 
       const defaultOption = document.createElement('option')
       defaultOption.value = ''
       defaultOption.textContent = 'Select chapter'
+      defaultOption.selected = true
+      defaultOption.disabled = true
       chapterSelect.appendChild(defaultOption)
 
-      lesson.chapters.forEach((chapter) => {
-        const option = document.createElement('option')
-        option.value = chapter
-        option.textContent = chapter
-        chapterSelect.appendChild(option)
-      })
+      if (lesson && Array.isArray(lesson.chapters)) {
+        lesson.chapters.forEach((chapter) => {
+          const option = document.createElement('option')
+          option.value = chapter
+          option.textContent = chapter
+          chapterSelect.appendChild(option)
+        })
+      }
     })
-    .catch((error) => console.error('Error fetching chapters:', error))
+    .catch((error) => {
+      console.error('Error fetching chapters:', error)
+      const chapterSelect = document.getElementById(chapterSelectId)
+      chapterSelect.innerHTML =
+        '<option value="" disabled selected>Error loading chapters</option>'
+    })
 }
 
+// Fetch and display questions
 function fetchQuestions() {
   const tableBody = document.getElementById('question-table-body')
 
@@ -107,27 +134,22 @@ function fetchQuestions() {
   `
 
   // First fetch all lessons to create a lookup map
-  fetch('http://localhost:5001/api/lessons')
+  authenticatedFetch('http://localhost:5001/api/lessons')
     .then((response) => response.json())
     .then((data) => {
-      // Create a map of lesson ID to lesson name
       const lessonMap = new Map()
-
-      // Access lessons from the success response
       const lessons = data.lessons || []
 
-      // Populate the lesson map
       lessons.forEach((lesson) => {
-        const lessonId = lesson._id // Direct access to ID string
-        console.log('Mapping lesson:', lessonId, '→', lesson.lessonName)
-        lessonMap.set(lessonId, lesson.lessonName)
+        lessonMap.set(lesson._id, lesson.lessonName)
       })
 
       // Then fetch questions
-      return fetch('http://localhost:5001/api/questions')
+      return authenticatedFetch('http://localhost:5001/api/questions')
         .then((response) => response.json())
         .then((questions) => {
           tableBody.innerHTML = ''
+          questionsStore.clear() // Clear the store before adding new questions
 
           if (!Array.isArray(questions) || questions.length === 0) {
             tableBody.innerHTML = `
@@ -139,8 +161,10 @@ function fetchQuestions() {
           }
 
           questions.forEach((question) => {
-            // Get the lesson name using the lesson ID
-            const lessonId = question.lesson._id // Access lesson ID directly
+            // Store question data for later use
+            questionsStore.set(question._id, question)
+
+            const lessonId = question.lesson._id
             const lessonName = lessonMap.get(lessonId) || 'N/A'
 
             const row = document.createElement('tr')
@@ -151,20 +175,10 @@ function fetchQuestions() {
               <td>${escapeHtml(question.chapter)}</td>
               <td>${escapeHtml(question.difficulty)}</td>
               <td>
-                <button class="btn btn-primary btn-sm" 
+                <button class="btn btn-primary btn-sm edit-question-btn" 
                   data-bs-toggle="modal" 
                   data-bs-target="#editQuestionModal"
-                  data-question-id="${question._id}"
-                  data-question-text="${escapeHtml(question.questionText)}"
-                  data-lesson="${lessonId}"
-                  data-chapter="${escapeHtml(question.chapter)}"
-                  data-difficulty="${escapeHtml(question.difficulty)}"
-                  data-option-a="${escapeHtml(question.options.A)}"
-                  data-option-b="${escapeHtml(question.options.B)}"
-                  data-option-c="${escapeHtml(question.options.C)}"
-                  data-option-d="${escapeHtml(question.options.D)}"
-                  data-correct-answer="${escapeHtml(question.correctAnswer)}"
-                  data-solution="${escapeHtml(question.solution || '')}">
+                  data-question-id="${question._id}">
                   Edit
                 </button>
                 <button class="btn btn-danger btn-sm" onclick="deleteQuestion('${
@@ -175,12 +189,6 @@ function fetchQuestions() {
               </td>
             `
             tableBody.appendChild(row)
-          })
-
-          // Log the final lesson map for debugging
-          console.log('Final lesson map:')
-          lessonMap.forEach((name, id) => {
-            console.log(id, '→', name)
           })
         })
     })
@@ -196,101 +204,49 @@ function fetchQuestions() {
     })
 }
 
-function escapeHtml(unsafe) {
-  if (unsafe == null) return ''
-  return unsafe
-    .toString()
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-}
-
-// Helper function to escape HTML
-function escapeHtml(unsafe) {
-  if (unsafe == null) return ''
-  return unsafe
-    .toString()
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-}
-// Helper function to escape HTML
-function escapeHtml(unsafe) {
-  if (unsafe == null) return ''
-  return unsafe
-    .toString()
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-}
-// Delete a question by ID
-function deleteQuestion(questionId) {
-  if (confirm(`Are you sure you want to delete Question ID: ${questionId}?`)) {
-    authenticatedFetch(`http://localhost:5001/api/questions/${questionId}`, {
-      method: 'DELETE',
-    })
-      .then((response) => response.json())
-      .then(() => {
-        alert(`Question ID: ${questionId} deleted successfully.`)
-        fetchQuestions()
-      })
-      .catch((error) => console.error('Error deleting question:', error))
-  }
-}
-
 // Populate Edit Modal with existing question data
 document
   .getElementById('editQuestionModal')
   .addEventListener('show.bs.modal', function (event) {
     const button = event.relatedTarget
     const questionId = button.getAttribute('data-question-id')
+    const question = questionsStore.get(questionId)
 
-    authenticatedFetch(`http://localhost:5001/api/questions/${questionId}`)
-      .then((response) => response.json())
-      .then((question) => {
-        const modal = this
-        modal.querySelector('#edit-question-id').value = getObjectId(
-          question._id
-        )
-        modal.querySelector('#edit-question-text').value = question.questionText
-        modal.querySelector('#edit-option-a').value = question.options.A
-        modal.querySelector('#edit-option-b').value = question.options.B
-        modal.querySelector('#edit-option-c').value = question.options.C
-        modal.querySelector('#edit-option-d').value = question.options.D
-        modal.querySelector('#edit-correct-answer').value =
-          question.correctAnswer
-        modal.querySelector('#edit-difficulty').value = question.difficulty
-        modal.querySelector('#edit-lesson').value = getObjectId(question.lesson)
-        modal.querySelector('#edit-question-solution').value =
-          question.solution || ''
+    if (!question) {
+      console.error('Question not found in store')
+      return
+    }
 
-        // Fetch chapters for the selected lesson
-        fetchChaptersForLesson(getObjectId(question.lesson), 'edit-chapter')
+    const modal = this
 
-        // Set chapter value after chapters are loaded
-        setTimeout(() => {
-          modal.querySelector('#edit-chapter').value = question.chapter
-        }, 500)
+    // Populate form fields
+    modal.querySelector('#edit-question-id').value = question._id
+    modal.querySelector('#edit-question-text').value = question.questionText
+    modal.querySelector('#edit-option-a').value = question.options.A
+    modal.querySelector('#edit-option-b').value = question.options.B
+    modal.querySelector('#edit-option-c').value = question.options.C
+    modal.querySelector('#edit-option-d').value = question.options.D
+    modal.querySelector('#edit-correct-answer').value = question.correctAnswer
+    modal.querySelector('#edit-difficulty').value = question.difficulty
+    modal.querySelector('#edit-lesson').value = question.lesson._id
+    modal.querySelector('#edit-question-solution').value =
+      question.solution || ''
 
-        // Handle image preview
-        const imagePreview = modal.querySelector('#edit-image-preview')
-        if (question.imageUrl) {
-          imagePreview.innerHTML = `<img src="${escapeHtml(
-            question.imageUrl
-          )}" alt="Question image" class="img-fluid">`
-        } else {
-          imagePreview.innerHTML = ''
-        }
-      })
-      .catch((error) =>
-        console.error('Error fetching question details:', error)
-      )
+    // Fetch chapters and set the chapter value
+    fetchChaptersForLesson(question.lesson._id, 'edit-chapter')
+    setTimeout(() => {
+      modal.querySelector('#edit-chapter').value = question.chapter
+    }, 500)
+
+    // Handle image preview
+    const imagePreview = modal.querySelector('#edit-image-preview')
+    if (question.imageUrl) {
+      imagePreview.innerHTML = `<img src="${escapeHtml(
+        question.imageUrl
+      )}" alt="Question image" class="img-fluid">`
+    } else {
+      imagePreview.innerHTML = ''
+    }
   })
 
 // Handle form submission for editing a question
@@ -382,6 +338,21 @@ document
         alert('Error adding question. Please try again.')
       })
   })
+
+// Delete a question by ID
+function deleteQuestion(questionId) {
+  if (confirm(`Are you sure you want to delete Question ID: ${questionId}?`)) {
+    authenticatedFetch(`http://localhost:5001/api/questions/${questionId}`, {
+      method: 'DELETE',
+    })
+      .then((response) => response.json())
+      .then(() => {
+        alert(`Question ID: ${questionId} deleted successfully.`)
+        fetchQuestions()
+      })
+      .catch((error) => console.error('Error deleting question:', error))
+  }
+}
 
 // Initialize the page
 window.onload = function () {

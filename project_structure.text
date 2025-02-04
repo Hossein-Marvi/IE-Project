@@ -1,19 +1,13 @@
-- .DS_Store
+- .gitignore
 - KonkurComputer_Front
-  - .DS_Store
-  - README.md
+  - images
+    - choose-one.jpeg
+    - practice-test.jpg
   - index.html
-  - project_structure.text
   - src
-    - .DS_Store
     - css
       - styles.css
-    - images
-      - .DS_Store
-      - choose-one.jpeg
-      - practice-test.jpg
     - js
-      - .DS_Store
       - admin
         - adminAuth.js
         - adminlogin.js
@@ -30,7 +24,6 @@
         - studentlogin.js
         - test-details.js
     - pages
-      - .DS_Store
       - admin
         - dashboard.html
         - login.html
@@ -49,11 +42,8 @@
 - README.md
 - api-documentation.md
 - backend-simulator
-  - .DS_Store
-  - api-documentation.md
   - package-lock.json
   - package.json
-  - project_structure.text
   - server.js
   - src
     - app.js
