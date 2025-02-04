@@ -69,7 +69,11 @@ class UserService {
     if (!user) {
       throw new Error('User not found')
     }
-    return { fullName: user.fullName, userId: user._id }
+    return {
+      fullName: user.fullName,
+      userId: user._id,
+      role: user.role,
+    }
   }
 }
 

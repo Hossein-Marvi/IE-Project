@@ -40,7 +40,12 @@ class UserController {
   async getProfile(req, res) {
     try {
       const profile = await userService.getUserProfile(req.user.id)
-      res.json(profile)
+      // Include role in the response
+      res.json({
+        fullName: profile.fullName,
+        userId: profile.userId,
+        role: req.user.role,
+      })
     } catch (error) {
       res.status(404).json({ message: error.message })
     }
