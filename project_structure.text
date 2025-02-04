@@ -1,15 +1,16 @@
 - .gitignore
 - KonkurComputer_Front
-  - images
-    - choose-one.jpeg
-    - practice-test.jpg
   - index.html
   - src
     - css
       - styles.css
+    - images
+      - choose-one.jpeg
+      - practice-test.jpg
     - js
       - admin
         - adminAuth.js
+        - admindashboard.js
         - adminlogin.js
         - manage-lessons.js
         - manage-questions.js
