@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+ <meta charset="UTF-8">
+ <title>Test Details</title>
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+ <link rel="stylesheet" href="../../css/styles.css">
+ <style>
+  .question-card {
+   margin-bottom: 2rem;
+  }
+
+  .answer-option {
+   padding: 0.75rem;
+   margin: 0.5rem 0;
+   border-radius: 0.25rem;
+  }
+
+  .user-answer {
+   border: 2px solid #007bff;
+  }
+
+  .correct-answer {
+   background-color: #d4edda;
+   border-color: #c3e6cb;
+  }
+
+  .wrong-answer {
+   background-color: #f8d7da;
+   border-color: #f5c6cb;
+  }
+
+  .empty-answer {
+   background-color: #fff3cd;
+   border-color: #ffeeba;
+  }
+
+  .solution-box {
+   background-color: #f8f9fa;
+   padding: 1rem;
+   margin-top: 1rem;
+   border-left: 4px solid #6c757d;
+  }
+
+  .test-summary {
+   background-color: #f8f9fa;
+   padding: 1.5rem;
+   border-radius: 0.5rem;
+   margin-bottom: 2rem;
+  }
+ </style>
+</head>
+
+<body class="home-page">
+ <!-- Student Navbar -->
+ <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow-sm">
+  <div class="container">
+   <a class="navbar-brand fs-3" href="../student/dashboard.html">TestingSystem</a>
+   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#studentNavbar"
+    aria-controls="studentNavbar" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+   </button>
+   <div class="collapse navbar-collapse" id="studentNavbar">
+    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+     <li class="nav-item">
+      <a class="nav-link" href="../student/dashboard.html">Dashboard</a>
+     </li>
+     <li class="nav-item">
+      <a class="nav-link" href="../student/create-test.html">Create Test</a>
+     </li>
+     <li class="nav-item">
+      <a class="nav-link" href="../student/performance-report.html">Performance Report</a>
+     </li>
+    </ul>
+    <form class="d-flex">
+     <button class="btn btn-outline-light" type="button" onclick="logout()">Logout</button>
+    </form>
+   </div>
+  </div>
+ </nav>
+
+ <!-- Main Content -->
+ <div class="container mt-5 pt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+   <h2>Test Review</h2>
+   <a href="performance-report.html" class="btn btn-outline-primary">Back to Performance Report</a>
+  </div>
+
+  <!-- Test Summary -->
+  <div id="test-summary" class="test-summary">
+   <!-- Summary will be inserted here -->
+  </div>
+
+  <!-- Question Navigation -->
+  <div class="mb-4">
+   <div class="btn-group" role="group" aria-label="Question navigation">
+    <button class="btn btn-secondary" onclick="previousQuestion()" id="prev-btn">Previous</button>
+    <button class="btn btn-primary" onclick="nextQuestion()" id="next-btn">Next</button>
+   </div>
+   <span class="ms-3" id="question-counter">Question 0 of 0</span>
+  </div>
+
+  <!-- Question Display -->
+  <div id="question-display">
+   <!-- Questions will be inserted here -->
+  </div>
+ </div>
+
+ <!-- Footer -->
+ <footer class="footer bg-dark text-light text-center py-3 mt-5">
+  <p>&copy; 2025 Online Testing System. All Rights Reserved.</p>
+ </footer>
+
+ <!-- Bootstrap JS -->
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+ <script src="../../js/student/test-details.js"></script>
+
+</body>
+
+</html>
