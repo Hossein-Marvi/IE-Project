@@ -109,7 +109,7 @@ document
 
     const newUser = { fullName, email, role, password }
 
-    fetch('http://localhost:5001/api/users', {
+    fetch('http://localhost:5001/api/signup', {
       method: 'POST',
       body: JSON.stringify(newUser),
       headers: {
