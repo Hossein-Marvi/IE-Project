@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" class="performance-report-page">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Performance Report</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .score-badge {
+      font-size: 1.1em;
+      padding: 0.5em 1em;
+    }
+
+    .test-card {
+      transition: transform 0.2s;
+    }
+
+    .test-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .stats-card {
+      background-color: #f8f9fa;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .no-tests-message {
+      text-align: center;
+      padding: 2rem;
+      background-color: #f8f9fa;
+      border-radius: 10px;
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+
+<body class="home-page">
+  <!-- Student Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fs-3" href="../student/dashboard.html">TestingSystem</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#studentNavbar"
+        aria-controls="studentNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="studentNavbar">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="../student/dashboard.html">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../student/create-test.html">Create Test</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="../student/performance-report.html">Performance Report</a>
+          </li>
+        </ul>
+        <form class="d-flex">
+          <button class="btn btn-outline-light" type="button" onclick="logout()">Logout</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container mt-5 pt-5">
+    <h2>Your Performance Report</h2>
+
+    <!-- Overall Statistics -->
+    <div class="stats-card mt-4">
+      <h4>Overall Statistics</h4>
+      <div class="row" id="overall-stats">
+        <div class="col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title">Tests Taken</h5>
+              <p class="card-text h3" id="total-tests">0</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title">Average Score</h5>
+              <p class="card-text h3" id="average-score">0%</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title">Total Time</h5>
+              <p class="card-text h3" id="total-time">0:00</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title">Success Rate</h5>
+              <p class="card-text h3" id="success-rate">0%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test History -->
+    <h3 class="mt-5">Test History</h3>
+    <div id="test-history" class="row mt-3">
+      <!-- Test cards will be dynamically inserted here -->
+    </div>
+  </div>
+
+  <!-- Footer Section -->
+  <footer class="footer bg-dark text-light text-center py-3 mt-5">
+    <p>&copy; 2025 Online Testing System. All Rights Reserved.</p>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="../../js/student/performance-report.js"></script>
+
+</body>
+
+</html>
