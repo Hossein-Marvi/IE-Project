@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Function to update question counts
-  // Function to update question counts
   async function updateQuestionCounts() {
     const selectedLesson = lessonDropdown.value
     const selectedChapter = chapterDropdown.value
@@ -31,7 +30,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-      // Changed lessonId to lesson to match backend expectation
       const response = await fetch(
         `http://localhost:5001/api/questions/counts?lesson=${selectedLesson}&chapter=${encodeURIComponent(
           selectedChapter
