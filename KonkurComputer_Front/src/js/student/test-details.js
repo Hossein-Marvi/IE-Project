@@ -32,7 +32,7 @@ async function fetchTestDetails() {
     }
 
     const response = await fetch(
-      `http://localhost:5001/api/test-details/${testId}`,
+      `http://localhost:5001/api/tests/details/${testId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

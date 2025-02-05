@@ -4,7 +4,7 @@ A comprehensive web-based testing platform that allows students to take practice
 
 ## 🎥 Project Demo & Features
 
-[Watch the Project Demo Video]() (10-minute walkthrough of features)
+[Watch the Project Demo Video] https://drive.google.com/drive/folders/1aiQWJdnCpQQ2am0FNNb_n6tBjUTaTywt?usp=sharing (10-minute walkthrough of features)
 
 ## 🌟 Features
 
@@ -167,7 +167,7 @@ API documentation is available at `/api-docs` when running the backend server.
 ## 🔗 Links
 
 - [GitHub Repository] https://github.com/Hossein-Marvi/IE-Project.git
-- [Feature Demo Video]()
+- [Feature Demo Videos] https://drive.google.com/drive/folders/1aiQWJdnCpQQ2am0FNNb_n6tBjUTaTywt?usp=sharing
 
 ## 👥 Contact
 
