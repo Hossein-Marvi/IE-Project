@@ -318,11 +318,6 @@ function setupQuestionEventListeners() {
 
       const completeResult = await completeTest(lessonId, chapter, totalSeconds)
 
-      // Update the completion message to include empty answers
-      const emptyAnswers =
-        currentQuestions.length -
-        document.querySelectorAll('input[name="option"]:checked').length
-
       feedbackText.innerHTML += `
                 <div class="alert alert-info mt-3">
                     <h5>Test Completed!</h5>
@@ -330,7 +325,6 @@ function setupQuestionEventListeners() {
                     <p>Correct answers: ${userScore} out of ${
         currentQuestions.length
       }</p>
-                    <p>Empty answers: ${emptyAnswers}</p>
                     <p>Total time: ${Math.floor(totalSeconds / 60)}m ${
         totalSeconds % 60
       }s</p>

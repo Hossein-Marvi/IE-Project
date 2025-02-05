@@ -1,3 +1,4 @@
+- .DS_Store
 - .gitignore
 - KonkurComputer_Front
   - index.html
@@ -10,8 +11,8 @@
     - js
       - admin
         - adminAuth.js
-        - admindashboard.js
         - adminlogin.js
+        - dashboard.js
         - manage-lessons.js
         - manage-questions.js
         - manage-users.js
@@ -43,6 +44,7 @@
 - README.md
 - api-documentation.md
 - backend-simulator
+  - .DS_Store
   - package-lock.json
   - package.json
   - server.js
