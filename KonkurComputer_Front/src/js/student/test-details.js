@@ -110,7 +110,7 @@ function displayQuestion(index) {
                         <p class="question-text">${question.questionText}</p>
                         ${
                           question.imageUrl
-                            ? `<img src="${question.imageUrl}" class="img-fluid mb-3" alt="Question Image">`
+                            ? `<img src="../../../../backend-simulator/public/${question.imageUrl}" class="img-fluid mb-3" alt="Question Image">`
                             : ''
                         }
                         

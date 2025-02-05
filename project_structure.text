@@ -1,3 +1,4 @@
+- .DS_Store
 - .gitignore
 - KonkurComputer_Front
   - index.html
@@ -10,8 +11,8 @@
     - js
       - admin
         - adminAuth.js
-        - admindashboard.js
         - adminlogin.js
+        - dashboard.js
         - manage-lessons.js
         - manage-questions.js
         - manage-users.js
@@ -43,10 +44,21 @@
 - README.md
 - api-documentation.md
 - backend-simulator
+  - .DS_Store
   - package-lock.json
   - package.json
+  - public
+    - uploads
+      - questions
+        - question-1738769963177-792040989.jpeg
+        - question-1738770429612-694159444.jpg
+        - question-1738770564695-468387073.jpeg
+        - question-1738770797628-878719109.jpeg
+        - question-1738771066059-243923339.jpg
+        - question-1738771485835-402656992.jpeg
   - server.js
   - src
+    - .DS_Store
     - app.js
     - config
       - database.js
@@ -61,6 +73,7 @@
     - middleware
       - auth.js
       - errorHandler.js
+      - upload.js
     - models
       - Lesson.js
       - Question.js

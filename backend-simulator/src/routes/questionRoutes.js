@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const questionController = require('../controllers/questionController')
 const { protect, adminOnly } = require('../middleware/auth')
-
+const upload = require('../middleware/upload')
 /**
  * @swagger
  * components:
@@ -70,7 +70,7 @@ router.get('/', questionController.getAllQuestions)
  *       201:
  *         description: Question created successfully
  */
-router.post('/', protect, adminOnly, questionController.createQuestion)
+// router.post('/', protect, adminOnly, questionController.createQuestion)
 
 /**
  * @swagger
@@ -93,7 +93,7 @@ router.post('/', protect, adminOnly, questionController.createQuestion)
  *           schema:
  *             $ref: '#/components/schemas/Question'
  */
-router.put('/:id', protect, adminOnly, questionController.updateQuestion)
+// router.put('/:id', protect, adminOnly, questionController.updateQuestion)
 
 /**
  * @swagger
@@ -137,5 +137,20 @@ router.get('/counts', questionController.getQuestionCounts)
  *         description: List of practice questions
  */
 router.get('/practice', protect, questionController.getPracticeQuestions)
+
+router.post(
+  '/',
+  protect,
+  adminOnly,
+  upload.single('image'),
+  questionController.createQuestion
+)
+router.put(
+  '/:id',
+  protect,
+  adminOnly,
+  upload.single('image'),
+  questionController.updateQuestion
+)
 
 module.exports = router

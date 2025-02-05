@@ -9,7 +9,6 @@ function authenticatedFetch(url, options = {}) {
     headers: {
       ...options.headers,
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
     },
   })
 }
@@ -29,6 +28,104 @@ function escapeHtml(unsafe) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;')
+}
+
+// Helper function to handle form data submission
+async function submitFormData(url, formData, method) {
+  try {
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: formData,
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || 'Network response was not ok')
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Error in submitFormData:', error)
+    throw error
+  }
+}
+
+// Helper function to create FormData from question data
+function createQuestionFormData(data, imageFile) {
+  const formData = new FormData()
+
+  // Add each field individually to FormData
+  formData.append('questionText', data.questionText)
+  formData.append('correctAnswer', data.correctAnswer)
+  formData.append('difficulty', data.difficulty)
+  formData.append('lesson', data.lesson)
+  formData.append('chapter', data.chapter)
+  formData.append('solution', data.solution)
+
+  // Add options as individual fields
+  formData.append('optionA', data.options.A)
+  formData.append('optionB', data.options.B)
+  formData.append('optionC', data.options.C)
+  formData.append('optionD', data.options.D)
+
+  // Add image if exists
+  if (imageFile) {
+    formData.append('image', imageFile)
+  }
+
+  return formData
+}
+
+function createQuestionFormData(data, imageFile) {
+  const formData = new FormData()
+
+  // Add basic fields
+  formData.append('questionText', data.questionText)
+  formData.append('correctAnswer', data.correctAnswer)
+  formData.append('difficulty', data.difficulty)
+  formData.append('lesson', data.lesson)
+  formData.append('chapter', data.chapter)
+  formData.append('solution', data.solution)
+
+  // Add options as a JSON string
+  formData.append(
+    'options',
+    JSON.stringify({
+      A: data.options.A,
+      B: data.options.B,
+      C: data.options.C,
+      D: data.options.D,
+    })
+  )
+
+  // Add image if exists
+  if (imageFile) {
+    formData.append('image', imageFile)
+  }
+
+  return formData
+}
+// Helper function to setup image preview
+function setupImagePreview(inputId, previewId) {
+  const input = document.getElementById(inputId)
+  const preview = document.getElementById(previewId)
+
+  input.addEventListener('change', function () {
+    if (this.files && this.files[0]) {
+      const reader = new FileReader()
+      reader.onload = function (e) {
+        preview.innerHTML = `
+          <div class="mt-2">
+            <img src="${e.target.result}" class="img-fluid" alt="Question image preview">
+          </div>
+        `
+      }
+      reader.readAsDataURL(this.files[0])
+    }
+  })
 }
 
 // Fetch all lessons from the backend
@@ -138,20 +235,25 @@ function fetchQuestions() {
     .then((response) => response.json())
     .then((data) => {
       const lessonMap = new Map()
-      const lessons = data.lessons || []
+      const lessons = Array.isArray(data) ? data : data.lessons || []
 
       lessons.forEach((lesson) => {
-        lessonMap.set(lesson._id, lesson.lessonName)
+        lessonMap.set(getObjectId(lesson._id), lesson.lessonName)
       })
 
       // Then fetch questions
       return authenticatedFetch('http://localhost:5001/api/questions')
         .then((response) => response.json())
-        .then((questions) => {
+        .then((questionsData) => {
           tableBody.innerHTML = ''
           questionsStore.clear() // Clear the store before adding new questions
 
-          if (!Array.isArray(questions) || questions.length === 0) {
+          // Ensure questions is an array
+          const questions = Array.isArray(questionsData)
+            ? questionsData
+            : questionsData.questions || []
+
+          if (questions.length === 0) {
             tableBody.innerHTML = `
               <tr>
                 <td colspan="6" class="text-center">No questions found</td>
@@ -161,29 +263,41 @@ function fetchQuestions() {
           }
 
           questions.forEach((question) => {
-            // Store question data for later use
-            questionsStore.set(question._id, question)
+            // Safely get the lesson ID and handle potential null values
+            const lessonId = question.lesson
+              ? getObjectId(question.lesson._id)
+              : null
+            const lessonName = lessonId
+              ? lessonMap.get(lessonId) || 'N/A'
+              : 'N/A'
 
-            const lessonId = question.lesson._id
-            const lessonName = lessonMap.get(lessonId) || 'N/A'
+            // Store question data for later use
+            questionsStore.set(getObjectId(question._id), question)
 
             const row = document.createElement('tr')
             row.innerHTML = `
-              <td>${question._id}</td>
-              <td>${escapeHtml(question.questionText)}</td>
+              <td>${getObjectId(question._id)}</td>
+              <td>
+                ${escapeHtml(question.questionText)}
+                ${
+                  question.imageUrl
+                    ? `<br><img src="http://localhost:5001${question.imageUrl}" alt="Question image" class="img-fluid mt-2" style="max-height: 100px;">`
+                    : ''
+                }
+              </td>
               <td>${escapeHtml(lessonName)}</td>
-              <td>${escapeHtml(question.chapter)}</td>
-              <td>${escapeHtml(question.difficulty)}</td>
+              <td>${escapeHtml(question.chapter || 'N/A')}</td>
+              <td>${escapeHtml(question.difficulty || 'N/A')}</td>
               <td>
                 <button class="btn btn-primary btn-sm edit-question-btn" 
                   data-bs-toggle="modal" 
                   data-bs-target="#editQuestionModal"
-                  data-question-id="${question._id}">
+                  data-question-id="${getObjectId(question._id)}">
                   Edit
                 </button>
-                <button class="btn btn-danger btn-sm" onclick="deleteQuestion('${
+                <button class="btn btn-danger btn-sm" onclick="deleteQuestion('${getObjectId(
                   question._id
-                }')">
+                )}')">
                   Delete
                 </button>
               </td>
@@ -197,13 +311,12 @@ function fetchQuestions() {
       tableBody.innerHTML = `
         <tr>
           <td colspan="6" class="text-center text-danger">
-            Error loading questions. Please try again later.
+            Error loading questions: ${error.message}
           </td>
         </tr>
       `
     })
 }
-
 // Populate Edit Modal with existing question data
 document
   .getElementById('editQuestionModal')
@@ -241,9 +354,11 @@ document
     // Handle image preview
     const imagePreview = modal.querySelector('#edit-image-preview')
     if (question.imageUrl) {
-      imagePreview.innerHTML = `<img src="${escapeHtml(
-        question.imageUrl
-      )}" alt="Question image" class="img-fluid">`
+      imagePreview.innerHTML = `
+        <div class="mt-2">
+          <img src="http://localhost:5001${question.imageUrl}" alt="Question image" class="img-fluid">
+        </div>
+      `
     } else {
       imagePreview.innerHTML = ''
     }
@@ -252,93 +367,140 @@ document
 // Handle form submission for editing a question
 document
   .getElementById('edit-question-form')
-  .addEventListener('submit', function (e) {
+  .addEventListener('submit', async function (e) {
     e.preventDefault()
 
-    const questionId = document.querySelector('#edit-question-id').value
-    const formData = {
-      questionText: document.querySelector('#edit-question-text').value,
-      options: {
-        A: document.querySelector('#edit-option-a').value,
-        B: document.querySelector('#edit-option-b').value,
-        C: document.querySelector('#edit-option-c').value,
-        D: document.querySelector('#edit-option-d').value,
-      },
-      correctAnswer: document.querySelector('#edit-correct-answer').value,
-      difficulty: document.querySelector('#edit-difficulty').value,
-      lesson: document.querySelector('#edit-lesson').value,
-      chapter: document.querySelector('#edit-chapter').value,
-      solution: document.querySelector('#edit-question-solution').value,
-    }
+    try {
+      const questionId = document.querySelector('#edit-question-id').value
+      const formData = {
+        questionText: document.querySelector('#edit-question-text').value,
+        options: {
+          A: document.querySelector('#edit-option-a').value,
+          B: document.querySelector('#edit-option-b').value,
+          C: document.querySelector('#edit-option-c').value,
+          D: document.querySelector('#edit-option-d').value,
+        },
+        correctAnswer: document.querySelector('#edit-correct-answer').value,
+        difficulty: document.querySelector('#edit-difficulty').value,
+        lesson: document.querySelector('#edit-lesson').value,
+        chapter: document.querySelector('#edit-chapter').value,
+        solution: document.querySelector('#edit-question-solution').value,
+      }
 
-    authenticatedFetch(`http://localhost:5001/api/questions/${questionId}`, {
-      method: 'PUT',
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success || data._id) {
-          alert('Question updated successfully!')
-          const modal = bootstrap.Modal.getInstance(
-            document.getElementById('editQuestionModal')
-          )
-          modal.hide()
-          fetchQuestions()
-        } else {
-          throw new Error(data.message || 'Failed to update question')
-        }
-      })
-      .catch((error) => {
-        console.error('Error updating question:', error)
-        alert('Error updating question. Please try again.')
-      })
+      const imageFile = document.querySelector('#edit-question-image').files[0]
+      const questionFormData = createQuestionFormData(formData, imageFile)
+
+      // Add this inside your form submit handler, before the submitFormData call
+      console.log('Form Data Contents:')
+      for (let pair of questionFormData.entries()) {
+        console.log(pair[0] + ': ' + pair[1])
+      }
+      const data = await submitFormData(
+        `http://localhost:5001/api/questions/${questionId}`,
+        questionFormData,
+        'PUT'
+      )
+
+      if (data.success || data._id) {
+        alert('Question updated successfully!')
+        const modal = bootstrap.Modal.getInstance(
+          document.getElementById('editQuestionModal')
+        )
+        modal.hide()
+        fetchQuestions()
+      } else {
+        throw new Error(data.message || 'Failed to update question')
+      }
+    } catch (error) {
+      console.error('Error updating question:', error)
+      alert('Error updating question. Please try again.')
+    }
   })
 
 // Handle form submission for adding a new question
 document
   .getElementById('add-question-form')
-  .addEventListener('submit', function (e) {
+  .addEventListener('submit', async function (e) {
     e.preventDefault()
 
-    const formData = {
-      questionText: document.querySelector('#question-text').value,
-      options: {
-        A: document.querySelector('input[placeholder="Option A"]').value,
-        B: document.querySelector('input[placeholder="Option B"]').value,
-        C: document.querySelector('input[placeholder="Option C"]').value,
-        D: document.querySelector('input[placeholder="Option D"]').value,
-      },
-      correctAnswer: document.querySelector('#correct-answer').value,
-      difficulty: document.querySelector('#difficulty').value,
-      lesson: document.querySelector('#lesson').value,
-      chapter: document.querySelector('#chapter').value,
-      solution: document.querySelector('#question-solution').value,
+    try {
+      // Get all form values
+      const formData = {
+        questionText: document.getElementById('question-text').value.trim(),
+        options: {
+          A: document
+            .querySelector('input[placeholder="Option A"]')
+            .value.trim(),
+          B: document
+            .querySelector('input[placeholder="Option B"]')
+            .value.trim(),
+          C: document
+            .querySelector('input[placeholder="Option C"]')
+            .value.trim(),
+          D: document
+            .querySelector('input[placeholder="Option D"]')
+            .value.trim(),
+        },
+        correctAnswer: document.getElementById('correct-answer').value,
+        difficulty: document.getElementById('difficulty').value,
+        lesson: document.getElementById('lesson').value,
+        chapter: document.getElementById('chapter').value,
+        solution: document.getElementById('question-solution').value.trim(),
+      }
+
+      // Validate form data
+      if (!formData.questionText) throw new Error('Question text is required')
+      if (!formData.correctAnswer) throw new Error('Correct answer is required')
+      if (!formData.difficulty) throw new Error('Difficulty is required')
+      if (!formData.lesson) throw new Error('Lesson is required')
+      if (!formData.chapter) throw new Error('Chapter is required')
+
+      // Validate options
+      if (Object.values(formData.options).some((opt) => !opt)) {
+        throw new Error('All options must be filled out')
+      }
+
+      const imageFile = document.getElementById('question-image').files[0]
+      const questionFormData = createQuestionFormData(formData, imageFile)
+
+      // Debug log
+      console.log('Submitting form data:')
+      for (let pair of questionFormData.entries()) {
+        console.log(pair[0] + ': ' + pair[1])
+      }
+
+      const response = await fetch('http://localhost:5001/api/questions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: questionFormData,
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to add question')
+      }
+
+      const result = await response.json()
+
+      if (result._id) {
+        alert('Question added successfully!')
+        this.reset()
+        document.getElementById('image-preview').innerHTML = ''
+        const modal = bootstrap.Modal.getInstance(
+          document.getElementById('addQuestionModal')
+        )
+        modal.hide()
+        fetchQuestions()
+      } else {
+        throw new Error('Failed to add question')
+      }
+    } catch (error) {
+      console.error('Error adding question:', error)
+      alert(error.message || 'Error adding question. Please try again.')
     }
-
-    authenticatedFetch('http://localhost:5001/api/questions', {
-      method: 'POST',
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success || data._id) {
-          alert('Question added successfully!')
-          this.reset()
-          const modal = bootstrap.Modal.getInstance(
-            document.getElementById('addQuestionModal')
-          )
-          modal.hide()
-          fetchQuestions()
-        } else {
-          throw new Error(data.message || 'Failed to add question')
-        }
-      })
-      .catch((error) => {
-        console.error('Error adding question:', error)
-        alert('Error adding question. Please try again.')
-      })
   })
-
 // Delete a question by ID
 function deleteQuestion(questionId) {
   if (confirm(`Are you sure you want to delete Question ID: ${questionId}?`)) {
@@ -358,6 +520,10 @@ function deleteQuestion(questionId) {
 window.onload = function () {
   fetchLessons()
   fetchQuestions()
+
+  // Setup image previews
+  setupImagePreview('question-image', 'image-preview')
+  setupImagePreview('edit-question-image', 'edit-image-preview')
 }
 
 // Logout functionality

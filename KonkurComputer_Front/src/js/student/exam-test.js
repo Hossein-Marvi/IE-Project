@@ -95,7 +95,7 @@ function displayCurrentQuestion() {
                     <p class="lead">${question.questionText}</p>
                     ${
                       question.imageUrl
-                        ? `<img src="${question.imageUrl}" alt="Question Image" class="question-image">`
+                        ? `<img src="../../../../backend-simulator/public/${question.imageUrl}" alt="Question Image" class="question-image">`
                         : ''
                     }
                     <div class="options-container mt-3">

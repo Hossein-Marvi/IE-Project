@@ -173,7 +173,7 @@ function displayCurrentQuestion() {
                 <p class="question-text h5 mb-4">${question.questionText}</p>
                 ${
                   question.imageUrl
-                    ? `<img src="${question.imageUrl}" class="img-fluid mb-4" alt="Question Image">`
+                    ? `<img src="../../../../backend-simulator/public/${question.imageUrl}" class="img-fluid mb-4" alt="Question Image">`
                     : ''
                 }
                 <form id="answer-form">

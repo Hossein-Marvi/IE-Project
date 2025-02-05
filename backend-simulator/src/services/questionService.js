@@ -7,13 +7,29 @@ class QuestionService {
   }
 
   async createQuestion(questionData) {
-    const question = new Question({
-      ...questionData,
-      lesson: new mongoose.Types.ObjectId(questionData.lesson),
-    })
-    return await question.save()
+    try {
+      console.log('Creating question with data:', questionData) // Debug log
+      const question = new Question({
+        questionText: questionData.questionText,
+        options: {
+          A: questionData.options.A,
+          B: questionData.options.B,
+          C: questionData.options.C,
+          D: questionData.options.D,
+        },
+        correctAnswer: questionData.correctAnswer,
+        lesson: new mongoose.Types.ObjectId(questionData.lesson),
+        chapter: questionData.chapter,
+        difficulty: questionData.difficulty,
+        solution: questionData.solution,
+        imageUrl: questionData.imageUrl,
+      })
+      return await question.save()
+    } catch (error) {
+      console.error('Error in questionService.createQuestion:', error)
+      throw error
+    }
   }
-
   async updateQuestion(id, updateData) {
     if (updateData.lesson) {
       updateData.lesson = new mongoose.Types.ObjectId(updateData.lesson)
