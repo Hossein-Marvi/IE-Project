@@ -131,8 +131,8 @@ frontend/
 
 - URL: `/pages/admin/login.html`
 - Default credentials:
-  - Email: admin@example.com
-  - Password: admin123
+  - Email: mr.marvi2001@gmail.com
+  - Password: 34748634
 
 ### Student Access
 

@@ -56,6 +56,7 @@
         - question-1738770797628-878719109.jpeg
         - question-1738771066059-243923339.jpg
         - question-1738771485835-402656992.jpeg
+        - question-1738782608739-926920521.jpeg
   - server.js
   - src
     - .DS_Store
@@ -91,4 +92,5 @@
       - userService.js
     - utils
       - passwordUtils.js
+- backend-simulator.zip
 - project_structure.text
